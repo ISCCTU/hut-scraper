@@ -1,0 +1,18 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Scraped output - regenerable, not source
+data/raw/
+data/combined.json
+data/filtered.json
+
+.DS_Store
+
