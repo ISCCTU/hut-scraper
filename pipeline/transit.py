@@ -17,8 +17,8 @@ import time
 
 import requests
 
-from config import IDOS_DEPARTURE_TIME, ORIGIN_LAT, ORIGIN_LON, ORIGIN_NAME, TRIP_CHECKIN
-from geocode import haversine_km
+from pipeline.config import IDOS_DEPARTURE_TIME, ORIGIN_LAT, ORIGIN_LON, ORIGIN_NAME, TRIP_CHECKIN
+from pipeline.geocode import haversine_km
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)

@@ -18,7 +18,7 @@ import time
 import requests
 from bs4 import BeautifulSoup
 
-from config import DEFAULT_REQUEST_DELAY_SECONDS
+from pipeline.config import DEFAULT_REQUEST_DELAY_SECONDS
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
@@ -75,6 +75,10 @@ def enrich(path: str, *, scope_selector: str | None) -> None:
     logger.info("%s done: %d/%d have a společenská místnost", path, found, len(records))
 
 
-if __name__ == "__main__":
+def main() -> None:
     enrich("data/raw/chatyachalupy.json", scope_selector=None)  # whole page - the mention can be anywhere in the free-text description
     enrich("data/raw/e_chalupy.json", scope_selector="#vybaveni")
+
+
+if __name__ == "__main__":
+    main()

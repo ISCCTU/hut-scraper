@@ -16,7 +16,7 @@ from __future__ import annotations
 import json
 import logging
 
-from config import TRIP_CHECKIN, TRIP_CHECKOUT
+from pipeline.config import TRIP_CHECKIN, TRIP_CHECKOUT
 from scrapers.common import build_session
 from scrapers.cs_chalupy import fetch_cp1250, parse_availability
 

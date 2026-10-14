@@ -20,7 +20,7 @@ import re
 import sys
 from datetime import date, datetime, timedelta
 
-from config import TRIP_CHECKIN, TRIP_CHECKOUT
+from pipeline.config import TRIP_CHECKIN, TRIP_CHECKOUT
 from scrapers.common import Hut, MIN_CAPACITY, build_session, polite_get, save_json
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")

@@ -9,8 +9,8 @@ from __future__ import annotations
 import json
 import logging
 
-from building_type import classify as classify_building
-from config import BUDGET_MAX_CZK, MAX_PRAGUE_DISTANCE_KM, MIN_CAPACITY, PREFERRED_CAPACITY, TRIP_NIGHTS
+from pipeline.building_type import classify as classify_building
+from pipeline.config import BUDGET_MAX_CZK, MAX_PRAGUE_DISTANCE_KM, MIN_CAPACITY, PREFERRED_CAPACITY, TRIP_NIGHTS
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 logger = logging.getLogger(__name__)
@@ -142,7 +142,7 @@ def main() -> None:
         rec["building_type_note"] = building_note
         # cs-chalupy.cz/chata.cz never got a dedicated has_common_room field - they
         # already have "společenská místnost" as a literal amenity when present, so
-        # derive it the same way enrich_common_room.py set it for the other two sites.
+        # derive it the same way enrichment/common_room.py set it for the other two sites.
         if rec.get("has_common_room") is None:
             rec["has_common_room"] = "společenská místnost" in (rec.get("amenities") or [])
         price_low, price_high, price_note = estimate_trip_total(rec)

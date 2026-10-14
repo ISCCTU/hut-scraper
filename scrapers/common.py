@@ -8,7 +8,7 @@ from dataclasses import asdict, dataclass, field
 
 import requests
 
-from config import (
+from pipeline.config import (
     BUDGET_MAX_CZK,
     DEFAULT_REQUEST_DELAY_SECONDS,
     MIN_CAPACITY,
@@ -61,7 +61,7 @@ class Hut:
     nearest_stop_type: str = ""
     nearest_stop_distance_km: float | None = None
     scraped_at: str = ""
-    # Patched in later, directly onto data/raw/*.json, by enrich_common_room.py (not
+    # Patched in later, directly onto data/raw/*.json, by enrichment/common_room.py (not
     # set by any scraper itself) - declared here anyway so Hut(**d) round-trips a
     # saved record without TypeError during a resume load.
     has_common_room: bool | None = None
