@@ -14,6 +14,7 @@ for this site.
 """
 from __future__ import annotations
 
+import dataclasses
 import json
 import logging
 import re
@@ -260,6 +261,7 @@ def scrape_detail(session, url: str) -> Hut | None:
 
 OUTPUT_PATH = "data/raw/cs_chalupy.json"
 SOURCE_ID_RE = re.compile(r"\.([0-9]+[A-Za-z]-[0-9]+)\.html$")
+_HUT_FIELDS = {f.name for f in dataclasses.fields(Hut)}
 
 
 def _load_existing() -> dict[str, Hut]:
@@ -268,7 +270,13 @@ def _load_existing() -> dict[str, Hut]:
             data = json.load(f)
     except FileNotFoundError:
         return {}
-    return {d["source_id"]: Hut(**d) for d in data}
+    # Filter to known Hut fields - an enrichment script may have patched extra keys
+    # (e.g. rating_score, or a resume-sentinel key) directly onto this raw JSON file,
+    # and Hut(**d) must not crash on a field it doesn't declare.
+    return {
+        d["source_id"]: Hut(**{k: v for k, v in d.items() if k in _HUT_FIELDS})
+        for d in data
+    }
 
 
 def main() -> None:

@@ -9,6 +9,7 @@ live date-availability check).
 """
 from __future__ import annotations
 
+import dataclasses
 import json
 import logging
 import re
@@ -292,6 +293,7 @@ def enrich_detail(session, cand: dict) -> Hut:
 MAX_DETAIL_VISITS = 1000
 CHECKPOINT_EVERY = 25
 OUTPUT_PATH = "data/raw/e_chalupy.json"
+_HUT_FIELDS = {f.name for f in dataclasses.fields(Hut)}
 
 
 def _load_existing() -> dict[str, Hut]:
@@ -300,7 +302,13 @@ def _load_existing() -> dict[str, Hut]:
             data = json.load(f)
     except FileNotFoundError:
         return {}
-    return {d["source_id"]: Hut(**d) for d in data}
+    # Filter to known Hut fields - an enrichment script may have patched extra keys
+    # (e.g. rating_score) directly onto this raw JSON file, and Hut(**d) must not
+    # crash on a field it doesn't declare.
+    return {
+        d["source_id"]: Hut(**{k: v for k, v in d.items() if k in _HUT_FIELDS})
+        for d in data
+    }
 
 
 def main() -> None:

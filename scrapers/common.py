@@ -61,11 +61,17 @@ class Hut:
     nearest_stop_type: str = ""
     nearest_stop_distance_km: float | None = None
     scraped_at: str = ""
-    # Patched in later, directly onto data/raw/*.json, by enrichment/common_room.py (not
-    # set by any scraper itself) - declared here anyway so Hut(**d) round-trips a
-    # saved record without TypeError during a resume load.
+    # Patched in later, directly onto data/raw/*.json, by enrichment/common_room.py and
+    # enrichment/ratings.py (not set by any scraper itself) - declared here anyway so
+    # Hut(**d) round-trips a saved record without TypeError during a resume load,
+    # regardless of which enrichers have already run against this file. _load_existing()
+    # in cs_chalupy.py/e_chalupy.py also defensively filters to known field names before
+    # calling Hut(**d), so a *future* stray enrichment key can't reintroduce this crash.
     has_common_room: bool | None = None
     common_room_note: str = ""
+    rating_score: float | None = None
+    rating_count: int | None = None
+    rating_scale: int | None = None
 
     def to_dict(self) -> dict:
         return asdict(self)

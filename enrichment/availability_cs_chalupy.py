@@ -43,7 +43,11 @@ def main() -> None:
         records = json.load(f)
     session = build_session()
 
-    todo = [r for r in records if "_availability_checked" not in r]
+    # available_for_trip stays None for BOTH "never checked" and "calendar didn't cover
+    # the trip nights" - availability_note distinguishes them: every checked outcome
+    # (free, booked, or inconclusive) sets a non-empty note, so "never checked" is the
+    # one state where both fields are still at their Hut-declared defaults.
+    todo = [r for r in records if r.get("available_for_trip") is None and not r.get("availability_note")]
     skipped = len(records) - len(todo)
     if skipped:
         logger.info("%d/%d already checked in a prior run, skipping", skipped, len(records))
@@ -60,7 +64,6 @@ def main() -> None:
             continue
         rec["available_for_trip"] = available
         rec["availability_note"] = note
-        rec["_availability_checked"] = True
         if available is True:
             free += 1
         elif available is False:
