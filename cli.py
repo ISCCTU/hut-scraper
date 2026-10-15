@@ -74,24 +74,44 @@ def run_enrich(only: list[str] | None) -> list[str]:
     return failed
 
 
-def run_geocode() -> None:
+def run_geocode() -> bool:
     existing = [p for p in RAW_PATHS if os.path.exists(p)]
     missing = set(RAW_PATHS) - set(existing)
     if missing:
         logger.warning("skipping missing raw files (scraper not finished yet?): %s", sorted(missing))
-    geocode.main(existing)
+    try:
+        geocode.main(existing)
+    except Exception:
+        logger.exception("geocode failed")
+        return False
+    return True
 
 
-def run_transit() -> None:
-    transit.main("data/combined.json")
+def run_transit() -> bool:
+    try:
+        transit.main("data/combined.json")
+    except Exception:
+        logger.exception("transit failed")
+        return False
+    return True
 
 
-def run_filter() -> None:
-    filter_stage.main()
+def run_filter() -> bool:
+    try:
+        filter_stage.main()
+    except Exception:
+        logger.exception("filter failed")
+        return False
+    return True
 
 
-def run_export(in_path: str = "data/filtered.json", out_path: str = "report-data.json") -> None:
-    export_report_data.main(in_path, out_path)
+def run_export(in_path: str = "data/filtered.json", out_path: str = "report-data.json") -> bool:
+    try:
+        export_report_data.main(in_path, out_path)
+    except Exception:
+        logger.exception("export failed")
+        return False
+    return True
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -119,25 +139,36 @@ def main(argv: list[str] | None = None) -> int:
     elif args.stage == "enrich":
         failed = run_enrich(args.only)
     elif args.stage == "geocode":
-        run_geocode()
+        if not run_geocode():
+            failed.append("geocode")
     elif args.stage == "transit":
-        run_transit()
+        if not run_transit():
+            failed.append("transit")
     elif args.stage == "filter":
-        run_filter()
+        if not run_filter():
+            failed.append("filter")
     elif args.stage == "export":
-        run_export(args.in_path, args.out_path)
+        if not run_export(args.in_path, args.out_path):
+            failed.append("export")
     elif args.stage == "fast":
         failed += run_scrape(None)
-        run_geocode()
-        run_filter()
-        run_export()
+        if not run_geocode():
+            failed.append("geocode")
+        if not run_filter():
+            failed.append("filter")
+        if not run_export():
+            failed.append("export")
     elif args.stage == "all":
         failed += run_scrape(None)
         failed += run_enrich(None)
-        run_geocode()
-        run_transit()
-        run_filter()
-        run_export()
+        if not run_geocode():
+            failed.append("geocode")
+        if not run_transit():
+            failed.append("transit")
+        if not run_filter():
+            failed.append("filter")
+        if not run_export():
+            failed.append("export")
 
     if failed:
         logger.warning("finished with failures in: %s", failed)
