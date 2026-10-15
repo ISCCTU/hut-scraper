@@ -70,7 +70,11 @@ uv run python -m enrichment.ratings e_chalupy   # just one
 `data/raw/*.json` from scratch, discarding anything `transit.py` added** -
 `cli.py all`/`fast` always call them in the right order automatically, but
 if you run `geocode`/`transit` as separate stages by hand, always rerun
-`transit` right after `geocode`, or the report loses travel-time data.
+`transit` right after `geocode`, or the report loses travel-time data. It
+does, however, patch any newly-resolved `lat`/`lon`/`nearest_stop_*` back
+onto each site's own `data/raw/*.json` as it goes, so a resolved record is
+never re-queried against Nominatim/Overpass on a later run - only genuinely
+new or still-unresolved records cost a fresh lookup.
 
 Output: `data/raw/*.json` (one file per site), `data/combined.json` (merged,
 geocoded, transit-enriched), `data/filtered.json` (ranked shortlist meeting

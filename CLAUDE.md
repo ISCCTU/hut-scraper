@@ -67,7 +67,10 @@ Commands above) rather than only documented in prose:
   `building_type.py` (pure text classifier, no network, called from
   `filter.py`), `geocode.py` (merges all four `data/raw/*.json` into
   `data/combined.json`, filling in `lat`/`lon` via Nominatim and the
-  nearest bus/train stop via OSM Overpass), `transit.py` (adds
+  nearest bus/train stop via OSM Overpass - also patches any newly-resolved
+  `lat`/`lon`/`nearest_stop_*` back onto each site's own `data/raw/<site>.json`,
+  so a record resolved once is never re-queried against those shared public
+  APIs on a later run), `transit.py` (adds
   `prague_distance_km` + real IDOS.cz transit time onto `combined.json` in
   place - must run after `geocode.py`, since `geocode.py` rebuilds that
   file from scratch every time), `filter.py` (drops anything under

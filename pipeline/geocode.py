@@ -106,14 +106,31 @@ def nearest_stop(session: requests.Session, lat: float, lon: float) -> tuple[str
 
 def main(paths: list[str]) -> None:
     session = requests.Session()
-    all_records: list[dict] = []
+    # Keep each site's records in their own list (not just one flat all_records
+    # list) so a resolved lat/lon/nearest_stop_* can be checkpointed back onto
+    # that site's own data/raw/*.json, not just the combined.json this function
+    # already rebuilds from scratch every run. Records are dicts, so a rec
+    # mutated via all_records below mutates the same object held in per_path -
+    # no separate patching pass needed. Without this, every full pipeline run
+    # re-queries the shared public Nominatim/Overpass APIs for every record
+    # those sites don't already publish coordinates/stops for, forever.
+    per_path: dict[str, list[dict]] = {}
     for path in paths:
         with open(path, encoding="utf-8") as f:
-            all_records.extend(json.load(f))
+            per_path[path] = json.load(f)
+    all_records: list[dict] = [rec for records in per_path.values() for rec in records]
+
+    out_path = "data/combined.json"
+
+    def checkpoint() -> None:
+        for raw_path, records in per_path.items():
+            with open(raw_path, "w", encoding="utf-8") as f:
+                json.dump(records, f, ensure_ascii=False, indent=2)
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(all_records, f, ensure_ascii=False, indent=2)
 
     geocoded = 0
     stops_found = 0
-    out_path = "data/combined.json"
     for i, rec in enumerate(all_records):
         if rec.get("nearest_stop_distance_km") is not None:
             continue  # cs-chalupy.cz already publishes this - no need to query Overpass
@@ -144,15 +161,14 @@ def main(paths: list[str]) -> None:
             logger.info("no stop found near %s (%s) within %dkm", rec["source_id"], rec["source"], STOP_SEARCH_RADII_M[-1] // 1000)
 
         if (i + 1) % 50 == 0:
-            with open(out_path, "w", encoding="utf-8") as f:
-                json.dump(all_records, f, ensure_ascii=False, indent=2)
+            checkpoint()
             logger.info("checkpoint: %d/%d records processed", i + 1, len(all_records))
 
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(all_records, f, ensure_ascii=False, indent=2)
+    checkpoint()
 
     logger.info(
-        "done: %d records, %d newly geocoded, %d with a nearest stop resolved -> %s",
+        "done: %d records, %d newly geocoded, %d with a nearest stop resolved -> %s "
+        "(lat/lon/nearest_stop_* also patched back onto each site's data/raw/*.json)",
         len(all_records), geocoded, stops_found, out_path,
     )
 
