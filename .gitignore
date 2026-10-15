@@ -13,6 +13,7 @@ wheels/
 data/raw/
 data/combined.json
 data/filtered.json
+report-data.json
 
 .DS_Store
 

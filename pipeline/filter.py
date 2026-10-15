@@ -1,8 +1,9 @@
 """Apply the trip's requirements to data/combined.json and produce a ranked shortlist.
 
-Hard requirements: capacity >= 20 (min), not confirmed-booked for the trip dates.
+Hard requirements: capacity >= MIN_CAPACITY, not confirmed-booked for the trip dates.
 Soft preferences (scored, not hard filters, since price/availability data quality
-varies a lot across the four sites): capacity >= 30, price <= 30k, closer to a stop.
+varies a lot across the four sites): capacity >= PREFERRED_CAPACITY, price <= BUDGET_MAX_CZK,
+closer to a stop.
 """
 from __future__ import annotations
 

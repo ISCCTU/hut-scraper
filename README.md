@@ -85,7 +85,7 @@ environment variable of the same name without touching code:
 | Name | Default | Meaning |
 |---|---|---|
 | `TRIP_CHECKIN` / `TRIP_CHECKOUT` | 2026-11-13 / 2026-11-15 | the weekend being checked, ISO date |
-| `MIN_CAPACITY` | 20 | hard minimum beds/persons |
+| `MIN_CAPACITY` | 17 | hard minimum beds/persons |
 | `PREFERRED_CAPACITY` | 30 | scored as a bonus, not a hard filter |
 | `BUDGET_MAX_CZK` | 30000 | whole-object price ceiling for the whole stay |
 | `DEFAULT_REQUEST_DELAY_SECONDS` | 1.0 | pause between requests in the scrapers |
